@@ -1,0 +1,14 @@
+0：year发生了哪些事件
+1：year颁布了哪些文件
+2：year召开了哪些会议
+3：nr简介
+4：nr出生日期
+5：nr参加了哪些事件
+6：event内容
+7：event具体时间
+8：event的人物
+9：meeting的具体内容
+10：meeting的地点
+11：meeting的具体时间
+12：file颁布时间
+13：file的具体内容
