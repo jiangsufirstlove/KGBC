@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<title>基于百年党史知识图谱的智能问答系统</title>
+<style type="text/css">
+* {
+	font-size: 14px;
+	padding: 0;
+	margin: 0;
+}
+.main {
+	position: relative;
+	margin: 5px auto;
+	border: 1px solid steelblue;
+	width: 100%;
+	height: 100%;
+}
+
+.msgInput {
+	display: block;
+	width: 90%;
+	height: 60px;
+	margin: 0px auto;
+}
+
+.sendbtn {
+	display: block;
+	width: 90%;
+	height: 29px;
+	padding: 0;
+	margin: 0 auto;
+}
+
+.content {
+	list-style: none;
+	width: 90%;
+	height: 80%;
+	margin: 5px auto;
+	border: 1px dotted #D1D3D6;
+	overflow-y: scroll;
+}
+
+.msgContent {
+	width: 70%;
+	height: auto;
+	word-break: break-all;
+	margin: 5px;
+	padding: 3px;
+	border-radius: 15px;
+}
+
+.content .left {
+	float: left;
+	text-align: left;
+	background-color: lightgrey;
+}
+
+.content .right {
+	float: right;
+	text-align: right;
+	background-color: lightgreen;
+	height: 10%
+}
+html,body {
+    font-size: 3em;
+    font-family: "微软雅黑", Helvetica, Tahoma, Arial, sans-serif;
+    color: #000;
+    background-color: #30333F;
+    margin: 0;
+    padding: 0;
+	width: 100%;
+	height: 100%;
+}
+</style>
+</head>
+<body>
+	<div id="main" class="main" >
+		<ul id="content" class="content">
+			<li class="msgContent left"><b>你好，我是百年党史小助手，你有什么百年党史方面的问题可以问我哦 支持类似下面这样的问题<br>
+				"****（1921-2021）年发生了哪些历史事件？"<br>
+				"****（1921-2021）年颁布了哪些文件？"<br>
+				"****（1921-2021）年召开了哪些会议？"<br>
+				 "***（人物）简介？" <br>
+				 "***（人物）出生年月？"<br>
+				 "***（事件）的内容？"<br>
+				 "***（事件）的具体时间？"<br>
+				 "***（事件）的参与人物？"<br>
+				 "***（会议）的具体内容？"<br>
+				 "***（会议）的地点？"<br>
+				 "***（会议）的具体时间？"<br>
+				 "***（文件）的颁布时间？"<br>
+				 "***（文件）的具体内容？"</b><br>
+			</li>
+			<div style="clear: both"></div>
+		</ul>
+		<textarea id="msg_input" class="msgInput"></textarea>
+		<button id="sendbtn" class="sendbtn">发送</button>
+	</div>
+</body>
+<script type="text/javascript">
+	window.onload = function() {
+
+		var input = document.getElementById('msg_input');//查找缓存
+		document.getElementById('sendbtn').onclick = function() {
+			sendMsg();
+		}
+
+		//enter键 发送
+		document.onkeypress = function(event) {
+			var e = event || window.event;
+			var keycode = e.keyCode || e.which;
+			console.log(e)
+			if (keycode == 13) {//按下enter键
+				sendMsg()
+			}
+		}
+
+		function sendMsg() {
+			var input = document.getElementById('msg_input');//查找缓存
+			var ul = document.getElementById('content');
+
+			var newLi = document.createElement('li');
+			newLi.innerHTML = input.value;
+			newLi.className = 'msgContent right';
+			ul.appendChild(newLi);
+
+			var div = document.createElement('div');
+			div.style = 'clear:both';
+			ul.appendChild(div);
+
+
+			ajax({
+				url : '/get_answer?question='+ input.value,
+				success : function(res) {
+					console.log(res);
+					var newLi = document.createElement('li');
+					newLi.innerHTML = res;
+					newLi.className = 'msgContent left';
+					ul.appendChild(newLi);
+
+					var div = document.createElement('div');
+					div.style = 'clear:both';
+					ul.appendChild(div);
+					input.value = '';
+					newLi.scrollIntoView();//将元素滚动到可见位置
+				}
+			})
+
+			input.value = '';
+			newLi.scrollIntoView();//将元素滚动到可见位置
+		}
+
+	}
+
+	function ajax(obj) {
+		//创建XMLHttpRequest对象
+		var xhr = null;
+		if (window.ActiveXObject) {
+			xhr = new ActiveXObject('Microsoft.XMLHTTP')
+		} else {
+			xhr = new XMLHttpRequest();
+		}
+
+		//打开与服务器的连接
+		if (obj.method) {
+			xhr.open(obj.method, obj.url, true);
+		} else {
+			xhr.open('get', obj.url, true);
+		}
+		xhr.setRequestHeader("Content-Type",
+				"application/x-www-form-urlencoded");
+		xhr.setRequestHeader("Authorization",
+				"APPCODE 3e9dfb924f464e9593a95f9d2bbf4348")
+
+		xhr.onreadystatechange = function() {
+
+			if (xhr.readyState == 4) {
+				//数据接收完毕
+				if (xhr.status == 200) {
+					//console.log('请求成功',xhr.responseText)
+					if (obj.success) {
+						obj.success(xhr.responseText)
+					}
+
+				} else {
+					//console.log(xhr.status,'请求出错')
+					if (obj.failure) {
+						obj.failure('请求失败')
+					}
+				}
+			}
+		}
+		if (obj.method == undefined || obj.method.toLowerCase() == 'get') {
+			xhr.send(null);
+		} else {
+			xhr.send(obj.params);
+
+		}
+	}
+</script>
+</html>
